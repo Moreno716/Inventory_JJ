@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1785359277132,
+    "nombre": "Prueba desde",
+    "cantidad": 5,
+    "categoria": "Test",
+    "precio": 12,
+    "descripcion": "ok",
+    "fechaCreacion": "2026-07-29T21:07:57.132Z"
+  },
+  {
+    "id": 1785359304638,
+    "nombre": "impresora",
+    "cantidad": 6,
+    "categoria": "imprecion",
+    "precio": 2,
+    "descripcion": "",
+    "fechaCreacion": "2026-07-29T21:08:24.638Z"
+  }
+]

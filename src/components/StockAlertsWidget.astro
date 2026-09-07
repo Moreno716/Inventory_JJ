@@ -1,0 +1,17 @@
+---
+// Componente de widget para las alertas de stock
+---
+<div class="rounded-2xl border border-slate-300/80 bg-white/70 p-6 shadow-[0_8px_30px_rgba(0,26,110,0.015)] backdrop-blur-md">
+  <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+    <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+      <svg class="h-5 w-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+      Alertas de Stock
+    </h4>
+    <span id="alertCountBadge" class="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 border border-amber-200/30">0</span>
+  </div>
+  <div id="alertsList" class="space-y-3">
+    <!-- Renderizado dinámicamente -->
+  </div>
+</div>
