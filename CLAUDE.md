@@ -2,7 +2,7 @@
 
 ## ¿Qué es este proyecto?
 
-Aplicación web de gestión de inventario interna llamada **"Gestión de Inventario Aliados Facilísimo"**. Es un dashboard SSR construido con Astro 4 + Node.js que permite crear, editar, eliminar y buscar productos con control de cantidades, categorías y precios.
+Aplicación web de gestión de inventario interna llamada **"Tienda JJ"**. Es una app SSR construida con Astro 4 + Node.js que permite crear, editar, eliminar y buscar productos con categorías y precios. Diseñada mobile-first para uso desde celular.
 
 ## Stack tecnológico
 
@@ -65,11 +65,9 @@ La API lee y escribe este archivo directamente con `node:fs/promises`. El archiv
 ```ts
 {
   id: number;           // Timestamp como ID (Date.now())
-  nombre: string;
-  cantidad: number;
-  categoria: string;
-  precio: number;
-  descripcion: string;
+  nombre: string;       // requerido
+  categoria: string;    // opcional
+  precio: number;       // opcional
   fechaCreacion: string; // ISO 8601
 }
 ```

@@ -1,125 +1,127 @@
 ---
-// Componente de formulario para agregar/editar items al inventario
 ---
+<div class="bg-white border-b border-slate-100 px-4 py-3 space-y-2.5">
 
-<div class="w-full">
-  <!-- Barra de controles: Búsqueda y botón de añadir -->
-  <div class="flex flex-col gap-3 rounded-2xl border border-slate-300/80 bg-white/70 p-4 sm:p-5 shadow-[0_8px_30px_rgba(0,26,110,0.02)] backdrop-blur-md">
-    <div class="relative w-full">
-      <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-      </span>
-      <input 
-        type="text" 
-        id="tableSearch" 
-        placeholder="Buscar por nombre o categoría..." 
-        class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 pl-10 pr-4 py-2.5 sm:py-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
-      />
-    </div>
-    
-    <button 
-      id="openAddModal" 
-      type="button" 
-      class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#001A6E] to-[#0b2f95] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-900/10 transition duration-300 hover:-translate-y-0.5 hover:shadow-blue-900/20 active:translate-y-0 active:scale-[0.98]"
-    >
-      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+  <!-- Buscador -->
+  <div class="relative max-w-3xl mx-auto">
+    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
-      Nuevo Producto
+    </span>
+    <input
+      type="search"
+      id="tableSearch"
+      placeholder="Buscar producto..."
+      class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-[#001A6E] focus:bg-white focus:ring-4 focus:ring-blue-100"
+    />
+  </div>
+
+  <!-- Chips de filtro + botón gestionar -->
+  <div class="max-w-3xl mx-auto flex items-center gap-2 overflow-x-auto" style="scrollbar-width: none; -ms-overflow-style: none;">
+
+    <button
+      class="category-chip chip-active flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95"
+      data-cat=""
+    >
+      Todos
     </button>
+
+    <!-- Chips de categorías (se llenan por JS) -->
+    <div id="categoryChips" class="flex gap-2 flex-shrink-0"></div>
+
+    <!-- Separador -->
+    <div class="shrink-0 w-px h-4 bg-slate-200 mx-0.5"></div>
+
+    <!-- Botón gestionar categorías -->
+    <button
+      id="openCatsModal"
+      type="button"
+      class="shrink-0 flex items-center gap-1.5 rounded-full border-2 border-dashed border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:border-[#001A6E] hover:text-[#001A6E] active:scale-95 whitespace-nowrap"
+    >
+      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      Categorías
+    </button>
+
   </div>
 </div>
 
-<script>
-  const form = document.getElementById('inventarioForm') as HTMLFormElement;
-  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
-  const messageDiv = document.getElementById('message') as HTMLDivElement;
-  const openAddModal = document.getElementById('openAddModal') as HTMLButtonElement;
-  const closeAddModal = document.getElementById('closeAddModal') as HTMLButtonElement;
-  const cancelAddModal = document.getElementById('cancelAddModal') as HTMLButtonElement;
-  const addProductModal = document.getElementById('addProductModal') as HTMLDivElement;
-
-  function abrirModal() {
-    addProductModal.classList.remove('hidden');
-    addProductModal.classList.add('flex');
-    document.body.style.overflow = 'hidden'; // Evita scroll de fondo
-  }
-
-  function cerrarModal() {
-    addProductModal.classList.remove('flex');
-    addProductModal.classList.add('hidden');
-    document.body.style.overflow = '';
-    form.reset();
-    messageDiv.textContent = '';
-    messageDiv.className = 'text-center text-xs font-semibold mt-2';
-  }
-
-  openAddModal?.addEventListener('click', abrirModal);
-  closeAddModal?.addEventListener('click', cerrarModal);
-  cancelAddModal?.addEventListener('click', cerrarModal);
-  addProductModal?.addEventListener('click', (e) => {
-    if (e.target === addProductModal) cerrarModal();
-  });
-
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    submitBtn.disabled = true;
-    messageDiv.textContent = '';
-
-    const nombreInput = document.getElementById('nombre') as HTMLInputElement;
-    const cantidadInput = document.getElementById('cantidad') as HTMLInputElement;
-    const categoriaInput = document.getElementById('categoria') as HTMLInputElement;
-    const precioInput = document.getElementById('precio') as HTMLInputElement;
-    const descripcionInput = document.getElementById('descripcion') as HTMLTextAreaElement;
-
-    const formData = {
-      nombre: nombreInput.value.trim(),
-      cantidad: Number.parseInt(cantidadInput.value, 10) || 0,
-      categoria: categoriaInput.value.trim(),
-      precio: Number.parseFloat(precioInput.value) || 0,
-      descripcion: descripcionInput.value.trim(),
-    };
-
-    try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json().catch(() => ({}));
-
-      if (response.ok) {
-        messageDiv.textContent = '✓ Producto guardado correctamente';
-        messageDiv.className = 'text-center text-xs font-semibold mt-2 text-emerald-600';
-        form.reset();
-        window.dispatchEvent(new CustomEvent('inventarioActualizado'));
-        setTimeout(cerrarModal, 700);
-      } else {
-        messageDiv.textContent = result?.error ? `✗ ${result.error}` : '✗ Error al guardar el producto';
-        messageDiv.className = 'text-center text-xs font-semibold mt-2 text-red-600';
-      }
-    } catch (error) {
-      console.error('Error guardando producto:', error);
-      messageDiv.textContent = '✗ Error de conexion';
-      messageDiv.className = 'text-center text-xs font-semibold mt-2 text-red-600';
-    } finally {
-      submitBtn.disabled = false;
-    }
-  });
-</script>
-
 <style>
-  @keyframes modalFadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95) translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+  .category-chip {
+    border: 2px solid #e2e8f0;
+    background: white;
+    color: #475569;
+  }
+  .category-chip.chip-active {
+    border-color: #001A6E;
+    background: #001A6E;
+    color: white;
   }
 </style>
+
+<script>
+  async function cargarCategorias() {
+    try {
+      const res = await fetch('/api/categories');
+      const cats: string[] = await res.json();
+
+      // Actualizar stat del header
+      const totalCatsEl = document.getElementById('headerStatCats');
+      if (totalCatsEl) totalCatsEl.textContent = cats.length.toString();
+
+      // Actualizar chips
+      const chipsContainer = document.getElementById('categoryChips');
+      if (!chipsContainer) return;
+
+      const activeCat = (document.querySelector('.category-chip.chip-active') as HTMLElement | null)?.dataset.cat ?? '';
+
+      chipsContainer.innerHTML = '';
+      cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'category-chip flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95' + (activeCat === cat ? ' chip-active' : '');
+        btn.dataset.cat = cat;
+        btn.textContent = cat;
+        chipsContainer.appendChild(btn);
+      });
+
+      // Actualizar datalist de modales
+      const datalist = document.getElementById('datalist-categorias');
+      if (datalist) {
+        datalist.innerHTML = cats.map(c => `<option value="${c}">`).join('');
+      }
+
+      adjuntarListenersChips();
+
+      // Notificar al modal de categorías si está abierto
+      window.dispatchEvent(new CustomEvent('categoriasRecargadas', { detail: { categorias: cats } }));
+    } catch {
+      // silently fail
+    }
+  }
+
+  function adjuntarListenersChips() {
+    document.querySelectorAll('.category-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('chip-active'));
+        chip.classList.add('chip-active');
+        const cat = (chip as HTMLElement).dataset.cat ?? '';
+        window.dispatchEvent(new CustomEvent('filtrarCategoria', { detail: { categoria: cat } }));
+      });
+    });
+  }
+
+  // Botón gestionar categorías
+  document.getElementById('openCatsModal')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('abrirModalCategorias'));
+  });
+
+  // Recargar cuando cambia algo
+  window.addEventListener('inventarioActualizado', cargarCategorias);
+  window.addEventListener('categoriasModificadas', cargarCategorias);
+
+  // Inicial
+  adjuntarListenersChips(); // para el chip "Todos" que ya está en HTML
+  cargarCategorias();
+</script>

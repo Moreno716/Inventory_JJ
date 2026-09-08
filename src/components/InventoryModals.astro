@@ -1,282 +1,276 @@
 ---
-// Componente que incluye los modales de agregar, editar y eliminar
 ---
+<!-- Datalist compartido para autocompletado de categorías -->
+<datalist id="datalist-categorias"></datalist>
 
-<!-- ================= MODAL AÑADIR PRODUCTO ================= -->
-<div 
-  id="addProductModal" 
-  class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 px-4 py-8 backdrop-blur-sm transition-opacity duration-300"
+<!-- ================= MODAL: GESTIONAR CATEGORÍAS ================= -->
+<div
+  id="catsModal"
+  class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/50 px-4 py-6 backdrop-blur-sm"
 >
-  <div 
-    class="w-full max-w-3xl transform rounded-2xl border border-slate-200 bg-white p-8 shadow-2xl transition-all duration-300 scale-95"
-    style="animation: modalFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;"
+  <div
+    class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white shadow-2xl flex flex-col max-h-[85vh]"
+    style="animation: modalFadeIn 0.25s ease forwards;"
   >
-    <div class="mb-6 flex items-start justify-between">
+    <!-- Header del modal -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
       <div>
-        <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700">
-          Catálogo
-        </span>
-        <h3 class="text-xl font-extrabold text-slate-900 mt-1">Registrar Nuevo Producto</h3>
+        <h3 class="text-base font-extrabold text-slate-900">Categorías</h3>
+        <p class="text-[10px] text-slate-400 mt-0.5">Gestiona las categorías del catálogo</p>
       </div>
-      <button 
-        id="closeAddModal" 
-        type="button" 
-        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+      <button
+        id="closeCatsModal"
+        type="button"
+        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 active:scale-95"
       >
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
     </div>
 
-    <form id="inventarioForm" class="space-y-5">
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        
-        <!-- Nombre -->
-        <div class="flex flex-col gap-1.5">
-          <label for="nombre" class="text-xs font-bold text-slate-600">Nombre del producto <span class="text-red-500">*</span></label>
-          <input 
-            type="text" 
-            id="nombre" 
-            placeholder="Ej. Impresora láser" 
-            required 
-            class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" 
-          />
-        </div>
-
-        <!-- Cantidad -->
-        <div class="flex flex-col gap-1.5">
-          <label for="cantidad" class="text-xs font-bold text-slate-600">Cantidad disponible <span class="text-red-500">*</span></label>
-          <div class="flex items-center gap-2">
-            <button type="button" id="decreaseCantidad"
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-slate-300/80 bg-slate-50 text-slate-700 text-lg font-bold transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
-            >−</button>
-            <input 
-              type="number" 
-              id="cantidad" 
-              placeholder="0" 
-              required 
-              min="0" 
-              class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 px-4 py-3 text-center text-sm font-bold text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" 
-            />
-            <button type="button" id="increaseCantidad"
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-slate-300/80 bg-slate-50 text-slate-700 text-lg font-bold transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
-            >+</button>
-          </div>
-        </div>
-
-        <!-- Categoría -->
-        <div class="flex flex-col gap-1.5">
-          <label for="categoria" class="text-xs font-bold text-slate-600">Categoría</label>
-          <input 
-            type="text" 
-            id="categoria" 
-            placeholder="Ej. Impresión" 
-            class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" 
-          />
-        </div>
-
-        <!-- Precio -->
-        <div class="flex flex-col gap-1.5">
-          <label for="precio" class="text-xs font-bold text-slate-600">Precio Unitario ($)</label>
-          <input 
-            type="number" 
-            id="precio" 
-            placeholder="Ej. 150.00" 
-            step="0.01" 
-            min="0" 
-            class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" 
-          />
-        </div>
-      </div>
-
-      <!-- Descripción -->
-      <div class="flex flex-col gap-1.5">
-        <label for="descripcion" class="text-xs font-bold text-slate-600">Descripción detallada</label>
-        <textarea 
-          id="descripcion" 
-          placeholder="Añade detalles relevantes del producto (opcional)..." 
-          rows="3" 
-          class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
-        ></textarea>
-      </div>
-
-      <!-- Acciones del formulario -->
-      <div class="flex flex-col gap-2 pt-3 sm:flex-row sm:justify-end">
-        <button 
-          id="cancelAddModal" 
-          type="button" 
-          class="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50 active:scale-95"
+    <!-- Formulario para nueva categoría -->
+    <div class="px-5 py-4 border-b border-slate-100 shrink-0">
+      <form id="newCatForm" class="flex gap-2">
+        <input
+          type="text"
+          id="newCatInput"
+          placeholder="Nueva categoría..."
+          autocomplete="off"
+          class="flex-1 rounded-xl border-2 border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-[#001A6E] focus:bg-white focus:ring-4 focus:ring-blue-100"
+        />
+        <button
+          type="submit"
+          class="shrink-0 inline-flex items-center gap-1 rounded-xl bg-[#001A6E] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#0b2f95] active:scale-95"
         >
-          Cancelar
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+          </svg>
+          Agregar
         </button>
-        
-        <button 
-          type="submit" 
-          id="submitBtn"
-          class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#001A6E] to-[#0b2f95] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-900/10 transition duration-300 hover:shadow-blue-900/20 disabled:opacity-50 active:scale-95"
-        >
-          Guardar Producto
-        </button>
-      </div>
+      </form>
+      <div id="catsMessage" class="text-xs font-semibold mt-2 min-h-[1rem]"></div>
+    </div>
 
-      <!-- Mensaje de estado en línea -->
-      <div id="message" class="text-center text-xs font-semibold mt-2"></div>
-    </form>
+    <!-- Lista de categorías -->
+    <div class="overflow-y-auto flex-1 px-5 py-3">
+      <ul id="catsList" class="space-y-1.5">
+        <li class="text-xs text-slate-400 text-center py-4">Cargando...</li>
+      </ul>
+    </div>
+
+    <!-- Nota informativa -->
+    <div class="px-5 py-3 border-t border-slate-100 shrink-0">
+      <p class="text-[10px] text-slate-400 leading-relaxed">
+        Eliminar una categoría no afecta los productos que ya la tienen asignada.
+      </p>
+    </div>
   </div>
 </div>
 
-<!-- ================= MODAL EDITAR PRODUCTO ================= -->
-<div 
-  id="editModal" 
-  class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 px-4 py-8 backdrop-blur-sm"
+<!-- ================= MODAL: AGREGAR PRODUCTO ================= -->
+<div
+  id="addProductModal"
+  class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/50 px-4 py-6 backdrop-blur-sm"
 >
-  <div 
-    class="w-full max-w-3xl rounded-2xl border border-slate-200 bg-white p-8 shadow-2xl scale-95"
-    style="animation: modalFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;"
+  <div
+    class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl"
+    style="animation: modalFadeIn 0.25s ease forwards;"
   >
-    <div class="mb-5 flex items-start justify-between">
-      <div>
-        <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700">
-          Edición
-        </span>
-        <h3 class="text-xl font-extrabold text-slate-900 mt-1">Editar Producto</h3>
-      </div>
-      <button 
-        type="button" 
-        id="closeEditModal" 
-        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+    <div class="mb-5 flex items-center justify-between">
+      <h3 class="text-lg font-extrabold text-slate-900">Nuevo Producto</h3>
+      <button
+        id="closeAddModal"
+        type="button"
+        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 active:scale-95"
       >
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
     </div>
 
-    <form id="editProductForm" class="space-y-5">
-      <input type="hidden" id="editId" />
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        
-        <!-- Nombre -->
-        <div class="flex flex-col gap-1.5">
-          <label for="editNombre" class="text-xs font-bold text-slate-600">Nombre del producto <span class="text-red-500">*</span></label>
-          <input 
-            id="editNombre" 
-            type="text" 
-            placeholder="Ej. Impresora láser" 
-            required 
-            class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" 
-          />
-        </div>
+    <form id="inventarioForm" class="space-y-4">
 
-        <!-- Cantidad -->
-        <div class="flex flex-col gap-1.5">
-          <label for="editCantidad" class="text-xs font-bold text-slate-600">Cantidad disponible <span class="text-red-500">*</span></label>
-          <div class="flex items-center gap-2">
-            <button type="button" id="editDecreaseCantidad"
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-slate-300/80 bg-slate-50 text-slate-700 text-lg font-bold transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
-            >−</button>
-            <input 
-              id="editCantidad" 
-              type="number" 
-              min="0" 
-              placeholder="0" 
-              required 
-              class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 px-4 py-3 text-center text-sm font-bold text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" 
-            />
-            <button type="button" id="editIncreaseCantidad"
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-slate-300/80 bg-slate-50 text-slate-700 text-lg font-bold transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
-            >+</button>
-          </div>
-        </div>
-
-        <!-- Categoría -->
-        <div class="flex flex-col gap-1.5">
-          <label for="editCategoria" class="text-xs font-bold text-slate-600">Categoría</label>
-          <input 
-            id="editCategoria" 
-            type="text" 
-            placeholder="Ej. Impresión" 
-            class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" 
-          />
-        </div>
-
-        <!-- Precio -->
-        <div class="flex flex-col gap-1.5">
-          <label for="editPrecio" class="text-xs font-bold text-slate-600">Precio Unitario ($)</label>
-          <input 
-            id="editPrecio" 
-            type="number" 
-            min="0" 
-            step="0.01" 
-            placeholder="Ej. 150.00" 
-            class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" 
-          />
-        </div>
+      <!-- Nombre -->
+      <div class="flex flex-col gap-1.5">
+        <label for="nombre" class="text-xs font-bold text-slate-600">
+          Nombre <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="nombre"
+          placeholder="Ej. Arroz Diana 500g"
+          required
+          autocomplete="off"
+          class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-[#001A6E] focus:bg-white focus:ring-4 focus:ring-blue-100"
+        />
       </div>
 
-      <!-- Descripción -->
-      <div class="flex flex-col gap-1.5">
-        <label for="editDescripcion" class="text-xs font-bold text-slate-600">Descripción detallada</label>
-        <textarea 
-          id="editDescripcion" 
-          placeholder="Añade una descripción relevante..." 
-          rows="3" 
-          class="w-full rounded-xl border-2 border-slate-300/80 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
-        ></textarea>
+      <!-- Categoría y Precio en fila -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label for="categoria" class="text-xs font-bold text-slate-600">Categoría</label>
+          <input
+            type="text"
+            id="categoria"
+            list="datalist-categorias"
+            placeholder="Ej. Bebidas"
+            autocomplete="off"
+            class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-[#001A6E] focus:bg-white focus:ring-4 focus:ring-blue-100"
+          />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="precio" class="text-xs font-bold text-slate-600">Precio ($)</label>
+          <input
+            type="number"
+            id="precio"
+            placeholder="0"
+            min="0"
+            step="any"
+            class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-[#001A6E] focus:bg-white focus:ring-4 focus:ring-blue-100"
+          />
+        </div>
       </div>
 
       <!-- Acciones -->
-      <div class="flex flex-col gap-2 pt-3 sm:flex-row sm:justify-end">
-        <button 
-          type="button" 
-          id="cancelEditBtn" 
-          class="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50 active:scale-95"
+      <div class="flex gap-3 pt-1">
+        <button
+          type="button"
+          id="cancelAddModal"
+          class="flex-1 rounded-xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 active:scale-95"
         >
           Cancelar
         </button>
-        <button 
-          type="submit" 
-          class="rounded-xl bg-gradient-to-r from-[#001A6E] to-[#0b2f95] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-900/10 transition duration-300 hover:shadow-blue-900/20 active:scale-95"
+        <button
+          type="submit"
+          id="submitBtn"
+          class="flex-1 rounded-xl bg-gradient-to-r from-[#001A6E] to-[#0b2f95] py-3 text-sm font-bold text-white shadow-lg shadow-blue-900/10 transition hover:shadow-blue-900/20 disabled:opacity-50 active:scale-95"
         >
-          Guardar Cambios
+          Guardar
         </button>
       </div>
+
+      <div id="addMessage" class="text-center text-xs font-semibold min-h-[1rem]"></div>
     </form>
   </div>
 </div>
 
-<!-- ================= MODAL DE CONFIRMACIÓN DE ELIMINACIÓN ================= -->
-<div 
-  id="deleteConfirmModal" 
-  class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 px-4 py-6 backdrop-blur-sm"
+<!-- ================= MODAL: EDITAR PRODUCTO ================= -->
+<div
+  id="editModal"
+  class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/50 px-4 py-6 backdrop-blur-sm"
 >
-  <div 
-    class="w-full max-w-md rounded-2xl border border-red-100 bg-white p-6 shadow-2xl scale-95"
-    style="animation: modalFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;"
+  <div
+    class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl"
+    style="animation: modalFadeIn 0.25s ease forwards;"
   >
-    <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-600">
-      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+    <div class="mb-5 flex items-center justify-between">
+      <h3 class="text-lg font-extrabold text-slate-900">Editar Producto</h3>
+      <button
+        id="closeEditModal"
+        type="button"
+        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 active:scale-95"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <form id="editProductForm" class="space-y-4">
+      <input type="hidden" id="editId" />
+
+      <!-- Nombre -->
+      <div class="flex flex-col gap-1.5">
+        <label for="editNombre" class="text-xs font-bold text-slate-600">
+          Nombre <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="editNombre"
+          required
+          autocomplete="off"
+          class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-[#001A6E] focus:bg-white focus:ring-4 focus:ring-blue-100"
+        />
+      </div>
+
+      <!-- Categoría y Precio -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label for="editCategoria" class="text-xs font-bold text-slate-600">Categoría</label>
+          <input
+            type="text"
+            id="editCategoria"
+            list="datalist-categorias"
+            autocomplete="off"
+            class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-[#001A6E] focus:bg-white focus:ring-4 focus:ring-blue-100"
+          />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="editPrecio" class="text-xs font-bold text-slate-600">Precio ($)</label>
+          <input
+            type="number"
+            id="editPrecio"
+            min="0"
+            step="any"
+            class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-[#001A6E] focus:bg-white focus:ring-4 focus:ring-blue-100"
+          />
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="flex gap-3 pt-1">
+        <button
+          type="button"
+          id="cancelEditBtn"
+          class="flex-1 rounded-xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 active:scale-95"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="flex-1 rounded-xl bg-gradient-to-r from-[#001A6E] to-[#0b2f95] py-3 text-sm font-bold text-white shadow-lg shadow-blue-900/10 transition hover:shadow-blue-900/20 active:scale-95"
+        >
+          Guardar
+        </button>
+      </div>
+
+      <div id="editMessage" class="text-center text-xs font-semibold min-h-[1rem]"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= MODAL: CONFIRMAR ELIMINACIÓN ================= -->
+<div
+  id="deleteConfirmModal"
+  class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/50 px-4 py-6 backdrop-blur-sm"
+>
+  <div
+    class="w-full max-w-sm rounded-2xl border border-red-100 bg-white p-6 shadow-2xl"
+    style="animation: modalFadeIn 0.25s ease forwards;"
+  >
+    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-600 mb-4">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
       </svg>
     </div>
     <h3 class="text-lg font-bold text-slate-900">¿Eliminar producto?</h3>
-    <p class="mt-2 text-sm text-slate-500 leading-relaxed">
-      Esta acción no se puede deshacer. El producto será borrado permanentemente del catálogo.
+    <p class="mt-1.5 text-sm text-slate-500 leading-relaxed">
+      Esta acción no se puede deshacer. El producto será eliminado del catálogo.
     </p>
-    
     <div class="mt-6 flex gap-3">
-      <button 
-        type="button" 
-        id="cancelDeleteBtn" 
-        class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50 active:scale-95"
+      <button
+        type="button"
+        id="cancelDeleteBtn"
+        class="flex-1 rounded-xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 active:scale-95"
       >
         Cancelar
       </button>
-      <button 
-        type="button" 
-        id="confirmDeleteBtn" 
-        class="flex-1 rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-200 transition duration-300 hover:shadow-red-300 active:scale-95"
+      <button
+        type="button"
+        id="confirmDeleteBtn"
+        class="flex-1 rounded-xl bg-gradient-to-r from-red-600 to-red-700 py-3 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:shadow-red-300 active:scale-95"
       >
         Eliminar
       </button>
@@ -284,33 +278,258 @@
   </div>
 </div>
 
-<script>
-// Controles de cantidad - Modal de añadir
-const cantidadInput = document.getElementById('cantidad') as HTMLInputElement;
-document.getElementById('increaseCantidad')?.addEventListener('click', () => {
-  const val = parseInt(cantidadInput.value) || 0;
-  cantidadInput.value = String(val + 1);
-});
-document.getElementById('decreaseCantidad')?.addEventListener('click', () => {
-  const val = parseInt(cantidadInput.value) || 0;
-  if (val > 0) cantidadInput.value = String(val - 1);
-});
-
-// Controles de cantidad - Modal de edición
-const editCantidadInput = document.getElementById('editCantidad') as HTMLInputElement;
-document.getElementById('editIncreaseCantidad')?.addEventListener('click', () => {
-  const val = parseInt(editCantidadInput.value) || 0;
-  editCantidadInput.value = String(val + 1);
-});
-document.getElementById('editDecreaseCantidad')?.addEventListener('click', () => {
-  const val = parseInt(editCantidadInput.value) || 0;
-  if (val > 0) editCantidadInput.value = String(val - 1);
-});
-</script>
-
 <style>
-@keyframes modalFadeIn {
-  from { opacity: 0; transform: scale(0.95) translateY(10px); }
-  to   { opacity: 1; transform: scale(1)    translateY(0); }
-}
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0); }
+  }
 </style>
+
+<script>
+  let pendingDeleteId: number | null = null;
+
+  const addModal    = document.getElementById('addProductModal') as HTMLElement;
+  const editModal   = document.getElementById('editModal') as HTMLElement;
+  const deleteModal = document.getElementById('deleteConfirmModal') as HTMLElement;
+  const addForm     = document.getElementById('inventarioForm') as HTMLFormElement;
+  const editForm    = document.getElementById('editProductForm') as HTMLFormElement;
+  const addMessage  = document.getElementById('addMessage') as HTMLElement;
+  const editMessage = document.getElementById('editMessage') as HTMLElement;
+
+  function openModal(el: HTMLElement) {
+    el.classList.remove('hidden');
+    el.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(el: HTMLElement) {
+    el.classList.remove('flex');
+    el.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function setMessage(el: HTMLElement, msg: string, tipo: 'success' | 'error') {
+    el.textContent = msg;
+    el.className = `text-center text-xs font-semibold min-h-[1rem] ${tipo === 'success' ? 'text-emerald-600' : 'text-red-600'}`;
+  }
+
+  // ─── MODAL AGREGAR ────────────────────────────────────────────────
+  function cerrarAddModal() {
+    closeModal(addModal);
+    addForm.reset();
+    addMessage.textContent = '';
+    addMessage.className = 'text-center text-xs font-semibold min-h-[1rem]';
+  }
+
+  document.getElementById('openAddModal')?.addEventListener('click', () => openModal(addModal));
+  document.getElementById('closeAddModal')?.addEventListener('click', cerrarAddModal);
+  document.getElementById('cancelAddModal')?.addEventListener('click', cerrarAddModal);
+  addModal.addEventListener('click', e => { if (e.target === addModal) cerrarAddModal(); });
+
+  addForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    submitBtn.disabled = true;
+
+    const payload = {
+      nombre:    (document.getElementById('nombre')    as HTMLInputElement).value.trim(),
+      categoria: (document.getElementById('categoria') as HTMLInputElement).value.trim(),
+      precio:    Number((document.getElementById('precio') as HTMLInputElement).value) || 0,
+    };
+
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setMessage(addMessage, '✓ Producto guardado', 'success');
+        window.dispatchEvent(new CustomEvent('inventarioActualizado'));
+        setTimeout(cerrarAddModal, 700);
+      } else {
+        setMessage(addMessage, '✗ Error al guardar', 'error');
+      }
+    } catch {
+      setMessage(addMessage, '✗ Error de conexión', 'error');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  // ─── MODAL EDITAR ─────────────────────────────────────────────────
+  function cerrarEditModal() {
+    closeModal(editModal);
+    editForm.reset();
+    editMessage.textContent = '';
+    editMessage.className = 'text-center text-xs font-semibold min-h-[1rem]';
+  }
+
+  window.addEventListener('editarProducto', (e: any) => {
+    const p = e.detail.producto;
+    (document.getElementById('editId')        as HTMLInputElement).value = p.id;
+    (document.getElementById('editNombre')    as HTMLInputElement).value = p.nombre || '';
+    (document.getElementById('editCategoria') as HTMLInputElement).value = p.categoria || '';
+    (document.getElementById('editPrecio')    as HTMLInputElement).value = p.precio ?? '';
+    openModal(editModal);
+  });
+
+  document.getElementById('closeEditModal')?.addEventListener('click', cerrarEditModal);
+  document.getElementById('cancelEditBtn')?.addEventListener('click', cerrarEditModal);
+  editModal.addEventListener('click', e => { if (e.target === editModal) cerrarEditModal(); });
+
+  editForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const payload = {
+      id:        Number((document.getElementById('editId')        as HTMLInputElement).value),
+      nombre:    (document.getElementById('editNombre')    as HTMLInputElement).value.trim(),
+      categoria: (document.getElementById('editCategoria') as HTMLInputElement).value.trim(),
+      precio:    Number((document.getElementById('editPrecio') as HTMLInputElement).value) || 0,
+    };
+
+    try {
+      const res = await fetch('/api/products', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setMessage(editMessage, '✓ Guardado', 'success');
+        window.dispatchEvent(new CustomEvent('inventarioActualizado'));
+        setTimeout(cerrarEditModal, 700);
+      } else {
+        setMessage(editMessage, '✗ Error al guardar', 'error');
+      }
+    } catch {
+      setMessage(editMessage, '✗ Error de conexión', 'error');
+    }
+  });
+
+  // ─── MODAL ELIMINAR ───────────────────────────────────────────────
+  function cerrarDeleteModal() {
+    pendingDeleteId = null;
+    closeModal(deleteModal);
+  }
+
+  window.addEventListener('eliminarProducto', (e: any) => {
+    pendingDeleteId = e.detail.id;
+    openModal(deleteModal);
+  });
+
+  document.getElementById('cancelDeleteBtn')?.addEventListener('click', cerrarDeleteModal);
+  deleteModal.addEventListener('click', e => { if (e.target === deleteModal) cerrarDeleteModal(); });
+
+  document.getElementById('confirmDeleteBtn')?.addEventListener('click', async () => {
+    if (pendingDeleteId === null) return;
+    try {
+      const res = await fetch('/api/products', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: pendingDeleteId }),
+      });
+      if (res.ok) {
+        window.dispatchEvent(new CustomEvent('inventarioActualizado'));
+        cerrarDeleteModal();
+      }
+    } catch {
+      // el modal permanece abierto
+    }
+  });
+
+  // ─── MODAL CATEGORÍAS ─────────────────────────────────────────────
+  const catsModal   = document.getElementById('catsModal') as HTMLElement;
+  const newCatForm  = document.getElementById('newCatForm') as HTMLFormElement;
+  const newCatInput = document.getElementById('newCatInput') as HTMLInputElement;
+  const catsList    = document.getElementById('catsList') as HTMLElement;
+  const catsMessage = document.getElementById('catsMessage') as HTMLElement;
+
+  function cerrarCatsModal() {
+    closeModal(catsModal);
+  }
+
+  async function renderizarCats() {
+    catsList.innerHTML = '<li class="text-xs text-slate-400 text-center py-4">Cargando...</li>';
+    try {
+      const res = await fetch('/api/categories');
+      const cats: string[] = await res.json();
+
+      if (cats.length === 0) {
+        catsList.innerHTML = '<li class="text-xs text-slate-400 text-center py-6">No hay categorías todavía.</li>';
+        return;
+      }
+
+      catsList.innerHTML = cats.map(cat => `
+        <li class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3.5 py-2.5 group">
+          <span class="text-sm font-semibold text-slate-700 truncate">${cat}</span>
+          <button
+            class="delete-cat-btn shrink-0 flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-100 hover:text-rose-600 active:scale-95"
+            data-nombre="${cat}"
+            title="Eliminar categoría"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </li>
+      `).join('');
+
+      document.querySelectorAll('.delete-cat-btn').forEach(btn => {
+        btn.addEventListener('click', async e => {
+          const nombre = (e.currentTarget as HTMLElement).dataset.nombre ?? '';
+          try {
+            const r = await fetch('/api/categories', {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ nombre }),
+            });
+            if (r.ok) {
+              window.dispatchEvent(new CustomEvent('categoriasModificadas'));
+              await renderizarCats();
+            }
+          } catch { /* silently fail */ }
+        });
+      });
+    } catch {
+      catsList.innerHTML = '<li class="text-xs text-rose-500 text-center py-4">Error al cargar categorías.</li>';
+    }
+  }
+
+  window.addEventListener('abrirModalCategorias', async () => {
+    openModal(catsModal);
+    await renderizarCats();
+  });
+
+  document.getElementById('closeCatsModal')?.addEventListener('click', cerrarCatsModal);
+  catsModal.addEventListener('click', e => { if (e.target === catsModal) cerrarCatsModal(); });
+
+  newCatForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const nombre = newCatInput.value.trim();
+    if (!nombre) return;
+
+    try {
+      const res = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre }),
+      });
+
+      if (res.ok) {
+        catsMessage.textContent = `✓ "${nombre}" agregada`;
+        catsMessage.className = 'text-xs font-semibold mt-2 min-h-[1rem] text-emerald-600';
+        newCatInput.value = '';
+        window.dispatchEvent(new CustomEvent('categoriasModificadas'));
+        await renderizarCats();
+        setTimeout(() => { catsMessage.textContent = ''; catsMessage.className = 'text-xs font-semibold mt-2 min-h-[1rem]'; }, 3000);
+      } else {
+        catsMessage.textContent = '✗ Error al agregar';
+        catsMessage.className = 'text-xs font-semibold mt-2 min-h-[1rem] text-red-600';
+      }
+    } catch {
+      catsMessage.textContent = '✗ Error de conexión';
+      catsMessage.className = 'text-xs font-semibold mt-2 min-h-[1rem] text-red-600';
+    }
+  });
+</script>

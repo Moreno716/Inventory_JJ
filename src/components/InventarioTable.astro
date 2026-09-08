@@ -1,506 +1,187 @@
 ---
-// Componente de tabla para mostrar items del inventario
 ---
+<div id="tableMessage" class="text-xs font-semibold text-center h-5 mb-2 transition-all"></div>
 
-<div class="w-full">
-  <!-- Tarjeta contenedora de la tabla -->
-  <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 shadow-[0_12px_45px_rgba(0,26,110,0.02)] backdrop-blur-md">
-    
-    <!-- Panel de encabezado de la tabla -->
-    <div class="border-b border-slate-100 px-6 py-5 flex items-center justify-between">
-      <div>
-        <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-blue-600">
-          Base de datos
-        </span>
-        <h3 class="text-lg font-bold text-slate-800 mt-1">Productos Registrados</h3>
-      </div>
-      <div id="tableMessage" class="text-xs font-semibold"></div>
-    </div>
+<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-    <!-- Tabla responsiva -->
-    <div class="overflow-x-auto">
-      <table class="w-full border-collapse text-left text-sm text-slate-700">
-        <thead>
-          <tr class="border-b border-slate-100 bg-slate-50/70 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
-            <th class="px-4 py-3 sm:px-5 sm:py-4">Producto</th>
-            <th class="hidden sm:table-cell px-4 py-3 sm:px-5 sm:py-4">Categoría</th>
-            <th class="px-4 py-3 sm:px-5 sm:py-4 text-center">Cantidad</th>
-            <th class="hidden md:table-cell px-4 py-3 sm:px-5 sm:py-4 text-right">Precio</th>
-            <th class="px-4 py-3 sm:px-5 sm:py-4 text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="inventarioBody" class="divide-y divide-slate-100">
-          <tr>
-            <td colspan="5" class="px-5 py-12 text-center text-slate-500">
-              <div class="flex flex-col items-center justify-center gap-3">
-                <svg class="h-8 w-8 animate-spin text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.2"></path>
-                </svg>
-                <p class="text-sm font-semibold tracking-wide">Cargando catálogo...</p>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- Encabezado con conteo -->
+  <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+    <h2 class="text-sm font-bold text-slate-700">Productos</h2>
+    <span id="productCount" class="text-xs text-slate-400 font-semibold"></span>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full border-collapse text-left text-sm">
+      <thead>
+        <tr class="border-b border-slate-100 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <th class="px-4 py-3">Producto</th>
+          <th class="hidden sm:table-cell px-4 py-3">Categoría</th>
+          <th class="hidden sm:table-cell px-4 py-3 text-right">Precio</th>
+          <th class="px-4 py-3 text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="inventarioBody" class="divide-y divide-slate-100">
+        <tr>
+          <td colspan="4" class="px-5 py-14 text-center">
+            <div class="flex flex-col items-center gap-3 text-slate-400">
+              <svg class="h-7 w-7 animate-spin text-[#001A6E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.2"/>
+              </svg>
+              <p class="text-sm font-medium">Cargando...</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
 </div>
 
 <script>
   let productosActuales: any[] = [];
-  let pendingDeleteId: number | null = null;
+  let categoriaActiva = '';
 
-  const tableMessage = document.getElementById('tableMessage') as HTMLDivElement;
-  const editModal = document.getElementById('editModal') as HTMLDivElement;
-  const deleteConfirmModal = document.getElementById('deleteConfirmModal') as HTMLDivElement;
-  const editForm = document.getElementById('editProductForm') as HTMLFormElement;
-  const closeEditModal = document.getElementById('closeEditModal') as HTMLButtonElement;
-  const cancelEditBtn = document.getElementById('cancelEditBtn') as HTMLButtonElement;
-  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn') as HTMLButtonElement;
-  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn') as HTMLButtonElement;
+  const tableMessage = document.getElementById('tableMessage') as HTMLElement;
   const searchInput = document.getElementById('tableSearch') as HTMLInputElement | null;
+  const productCount = document.getElementById('productCount') as HTMLElement;
 
-  function mostrarMensaje(mensaje: string, tipo: 'success' | 'error' | 'info' = 'info') {
-    const colorClass = tipo === 'success' ? 'text-emerald-600' : tipo === 'error' ? 'text-rose-600' : 'text-slate-600';
-    tableMessage.textContent = mensaje;
-    tableMessage.className = `text-xs font-semibold ${colorClass}`;
+  function mostrarMensaje(msg: string, tipo: 'success' | 'error') {
+    tableMessage.textContent = msg;
+    tableMessage.className = `text-xs font-semibold text-center h-5 mb-2 ${tipo === 'success' ? 'text-emerald-600' : 'text-rose-600'}`;
     setTimeout(() => {
       tableMessage.textContent = '';
+      tableMessage.className = 'text-xs font-semibold text-center h-5 mb-2';
     }, 4000);
   }
 
-  function abrirModalEdicion(item: any) {
-    (document.getElementById('editId') as HTMLInputElement).value = item.id;
-    (document.getElementById('editNombre') as HTMLInputElement).value = item.nombre || '';
-    (document.getElementById('editCantidad') as HTMLInputElement).value = item.cantidad ?? 0;
-    (document.getElementById('editCategoria') as HTMLInputElement).value = item.categoria || '';
-    (document.getElementById('editPrecio') as HTMLInputElement).value = item.precio ?? 0;
-    (document.getElementById('editDescripcion') as HTMLTextAreaElement).value = item.descripcion || '';
-    editModal.classList.remove('hidden');
-    editModal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function cerrarModalEdicion() {
-    editModal.classList.remove('flex');
-    editModal.classList.add('hidden');
-    document.body.style.overflow = '';
-    editForm.reset();
-  }
-
-  function abrirConfirmDelete(id: number) {
-    pendingDeleteId = id;
-    deleteConfirmModal.classList.remove('hidden');
-    deleteConfirmModal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function cerrarConfirmDelete() {
-    pendingDeleteId = null;
-    deleteConfirmModal.classList.remove('flex');
-    deleteConfirmModal.classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  function actualizarEstadisticas() {
-    const totalProductsEl = document.getElementById('statTotalProducts');
-    const totalStockEl = document.getElementById('statTotalStock');
-    const totalValueEl = document.getElementById('statTotalValue');
-    const categoriesEl = document.getElementById('statCategories');
-
+  function actualizarStats() {
+    const totalProductsEl = document.getElementById('headerStatProducts');
     if (totalProductsEl) totalProductsEl.textContent = productosActuales.length.toString();
-
-    if (totalStockEl) {
-      const sumStock = productosActuales.reduce((sum, p) => sum + (Number(p.cantidad) || 0), 0);
-      totalStockEl.textContent = sumStock.toLocaleString();
-    }
-
-    if (totalValueEl) {
-      const sumValue = productosActuales.reduce((sum, p) => sum + ((Number(p.cantidad) || 0) * (Number(p.precio) || 0)), 0);
-      totalValueEl.textContent = `$${sumValue.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    }
-
-    if (categoriesEl) {
-      const uniqueCats = new Set(productosActuales.map(p => p.categoria?.trim().toLowerCase()).filter(Boolean));
-      categoriesEl.textContent = uniqueCats.size.toString();
-    }
-
-    actualizarAlertas();
-    actualizarDistribucionCategorias();
-  }
-
-  function actualizarAlertas() {
-    const alertsList = document.getElementById('alertsList');
-    const alertCountBadge = document.getElementById('alertCountBadge');
-    if (!alertsList) return;
-
-    const alertProducts = productosActuales.filter(p => (Number(p.cantidad) || 0) < 5);
-
-    if (alertCountBadge) alertCountBadge.textContent = alertProducts.length.toString();
-
-    if (alertProducts.length === 0) {
-      alertsList.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-6 text-slate-400">
-          <svg class="h-8 w-8 text-emerald-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <p class="text-xs font-semibold text-slate-500">Todo en orden. Sin alertas de stock.</p>
-        </div>
-      `;
-      if (alertCountBadge) {
-        alertCountBadge.className = 'rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200/30';
-      }
-      return;
-    }
-
-    if (alertCountBadge) {
-      alertCountBadge.className = 'rounded-full bg-rose-50 px-2.5 py-0.5 text-[10px] font-bold text-rose-700 border border-rose-200/30';
-    }
-
-    alertsList.innerHTML = alertProducts
-      .map(p => {
-        const isOutOfStock = (Number(p.cantidad) || 0) === 0;
-        const badgeLabel = isOutOfStock ? 'Sin stock' : 'Stock bajo';
-        const badgeClass = isOutOfStock ? 'bg-red-50 text-red-700 border-red-200/50' : 'bg-amber-50 text-amber-700 border-amber-200/50';
-
-        return `
-          <div class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-3">
-            <div class="min-w-0">
-              <p class="text-xs font-bold text-slate-700 truncate">${p.nombre}</p>
-              <p class="text-[10px] text-slate-400 mt-0.5">Ubicación: General</p>
-            </div>
-            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold border ${badgeClass}">
-              ${p.cantidad} uds · ${badgeLabel}
-            </span>
-          </div>
-        `;
-      })
-      .join('');
-  }
-
-  function actualizarDistribucionCategorias() {
-    const categoriesList = document.getElementById('categoriesList');
-    if (!categoriesList) return;
-
-    if (productosActuales.length === 0) {
-      categoriesList.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-6 text-slate-400">
-          <p class="text-xs font-semibold">Agrega productos para ver la distribución.</p>
-        </div>
-      `;
-      return;
-    }
-
-    const counts: { [key: string]: number } = {};
-    productosActuales.forEach(p => {
-      const cat = p.categoria?.trim() || 'Sin categoría';
-      counts[cat] = (counts[cat] || 0) + 1;
-    });
-
-    const total = productosActuales.length;
-    const sortedCats = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-
-    categoriesList.innerHTML = sortedCats
-      .map(([cat, count]) => {
-        const percentage = Math.round((count / total) * 100);
-        return `
-          <div class="space-y-1.5">
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-600 truncate">${cat}</span>
-              <span class="font-bold text-slate-400">${count} uds (${percentage}%)</span>
-            </div>
-            <div class="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
-              <div 
-                class="h-full rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500" 
-                style="width: ${percentage}%"
-              ></div>
-            </div>
-          </div>
-        `;
-      })
-      .join('');
   }
 
   function renderizarTabla() {
     const tbody = document.getElementById('inventarioBody');
     if (!tbody) return;
 
-    const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const query = searchInput?.value.toLowerCase().trim() ?? '';
 
     const filtrados = productosActuales.filter(item => {
-      const nombre = (item.nombre || '').toLowerCase();
-      const categoria = (item.categoria || '').toLowerCase();
-      const desc = (item.descripcion || '').toLowerCase();
-      return nombre.includes(query) || categoria.includes(query) || desc.includes(query);
+      const matchSearch = !query ||
+        (item.nombre || '').toLowerCase().includes(query) ||
+        (item.categoria || '').toLowerCase().includes(query);
+      const matchCat = !categoriaActiva || (item.categoria || '').trim() === categoriaActiva;
+      return matchSearch && matchCat;
     });
 
+    if (productCount) {
+      productCount.textContent = filtrados.length === productosActuales.length
+        ? `${productosActuales.length} en total`
+        : `${filtrados.length} de ${productosActuales.length}`;
+    }
+
     if (filtrados.length === 0) {
+      const emptyMsg = productosActuales.length === 0
+        ? 'Aún no hay productos. ¡Agrega el primero!'
+        : 'No se encontraron productos.';
       tbody.innerHTML = `
-        <tr class="border-b border-slate-100">
-          <td colspan="5" class="px-5 py-12 text-center text-slate-400">
-            <p class="text-sm font-medium">No se encontraron productos.</p>
+        <tr>
+          <td colspan="4" class="px-5 py-14 text-center">
+            <p class="text-sm text-slate-400 font-medium">${emptyMsg}</p>
           </td>
         </tr>
       `;
       return;
     }
 
-    tbody.innerHTML = filtrados
-      .map(
-        (item: any) => {
-          const categoryLabel = item.categoria?.trim() || 'Sin categoría';
-          
-          let stockBadgeClass = 'bg-blue-50 text-blue-700 border-blue-100';
-          if (item.cantidad === 0) {
-            stockBadgeClass = 'bg-rose-50 text-rose-700 border-rose-100';
-          } else if (item.cantidad < 5) {
-            stockBadgeClass = 'bg-amber-50 text-amber-700 border-amber-100';
-          } else {
-            stockBadgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-100';
-          }
+    tbody.innerHTML = filtrados.map(item => {
+      const cat = item.categoria?.trim() || '';
+      const precio = item.precio ? `$${Number(item.precio).toLocaleString('es-CO')}` : '—';
+      const inicial = (item.nombre || 'P').charAt(0).toUpperCase();
 
-          const desc = item.descripcion?.trim() ? item.descripcion : 'Sin descripción';
-          const precioFormateado = item.precio ? `$${Number(item.precio).toFixed(2)}` : '$0.00';
+      return `
+        <tr class="group hover:bg-slate-50/70 transition-colors">
+          <td class="px-4 py-3.5">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 font-extrabold text-sm text-[#001A6E] border border-blue-100 select-none">${inicial}</div>
+              <div class="min-w-0">
+                <div class="font-bold text-slate-800 truncate">${item.nombre}</div>
+                ${cat ? `<div class="text-[11px] text-slate-400 mt-0.5 sm:hidden truncate">${cat}</div>` : ''}
+                <div class="text-xs font-semibold text-slate-500 mt-0.5 sm:hidden">${precio}</div>
+              </div>
+            </div>
+          </td>
+          <td class="hidden sm:table-cell px-4 py-3.5">
+            ${cat
+              ? `<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">${cat}</span>`
+              : `<span class="text-slate-300 text-xs">—</span>`
+            }
+          </td>
+          <td class="hidden sm:table-cell px-4 py-3.5 text-right font-bold text-slate-800">${precio}</td>
+          <td class="px-4 py-3.5">
+            <div class="flex items-center justify-end gap-2">
+              <button
+                title="Editar"
+                class="edit-btn flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
+                data-id="${item.id}"
+              >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+              </button>
+              <button
+                title="Eliminar"
+                class="delete-btn flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-rose-500 shadow-sm transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 active:scale-95"
+                data-id="${item.id}"
+              >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
 
-          return `
-            <tr class="group border-b border-slate-100 transition duration-200 hover:bg-slate-50/50">
-              <td class="px-4 py-3 sm:px-5 sm:py-4">
-                <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-slate-100/80 font-bold text-xs uppercase text-slate-700 border border-slate-200/50">
-                    ${(item.nombre || 'P').charAt(0)}
-                  </div>
-                  <div class="min-w-0">
-                    <div class="font-bold text-sm text-slate-800 truncate transition group-hover:text-slate-900">${item.nombre}</div>
-                    <div class="text-xs text-slate-400 line-clamp-1 mt-0.5 hidden sm:block">${desc}</div>
-                    <div class="text-xs text-slate-500 font-semibold mt-0.5 sm:hidden">${precioFormateado}</div>
-                  </div>
-                </div>
-              </td>
-              <td class="hidden sm:table-cell px-4 py-3 sm:px-5 sm:py-4">
-                <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 border border-slate-200/30">
-                  ${categoryLabel}
-                </span>
-              </td>
-              <td class="px-3 py-3 sm:px-5 sm:py-4">
-                <div class="flex items-center justify-center gap-1">
-                  <button
-                    class="qty-minus inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-md sm:rounded-lg border border-slate-200 bg-white text-slate-600 font-bold text-sm sm:text-base shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
-                    data-id="${item.id}"
-                    title="Restar uno"
-                  >−</button>
-                  <span class="inline-flex min-w-[44px] sm:min-w-[54px] items-center justify-center rounded-lg px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-xs font-bold border ${stockBadgeClass}">
-                    ${item.cantidad}<span class="hidden sm:inline"> uds</span>
-                  </span>
-                  <button
-                    class="qty-plus inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-md sm:rounded-lg border border-slate-200 bg-white text-slate-600 font-bold text-sm sm:text-base shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
-                    data-id="${item.id}"
-                    title="Sumar uno"
-                  >+</button>
-                </div>
-              </td>
-              <td class="hidden md:table-cell px-4 py-3 sm:px-5 sm:py-4 text-right font-extrabold text-slate-800 text-sm">
-                ${precioFormateado}
-              </td>
-              <td class="px-3 py-3 sm:px-4 sm:py-4">
-                <div class="flex justify-center gap-1.5">
-                  <button 
-                    title="Editar producto"
-                    class="edit-btn inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 active:scale-95" 
-                    data-id="${item.id}"
-                  >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                    </svg>
-                  </button>
-                  <button 
-                    title="Eliminar producto"
-                    class="delete-btn inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-rose-600 shadow-sm transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 active:scale-95" 
-                    data-id="${item.id}"
-                  >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          `;
-        }
-      )
-      .join('');
-
-    // Re-adjuntar listeners de edición
-    document.querySelectorAll('.edit-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const target = e.currentTarget as HTMLButtonElement;
-        const item = productosActuales.find((p) => String(p.id) === String(target.getAttribute('data-id')));
-        if (item) abrirModalEdicion(item);
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const id = (e.currentTarget as HTMLElement).dataset.id;
+        const item = productosActuales.find(p => String(p.id) === id);
+        if (item) window.dispatchEvent(new CustomEvent('editarProducto', { detail: { producto: item } }));
       });
     });
 
-    // Re-adjuntar listeners de eliminación
-    document.querySelectorAll('.delete-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const target = e.currentTarget as HTMLButtonElement;
-        const id = Number(target.getAttribute('data-id'));
-        abrirConfirmDelete(id);
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const id = Number((e.currentTarget as HTMLElement).dataset.id);
+        window.dispatchEvent(new CustomEvent('eliminarProducto', { detail: { id } }));
       });
     });
-
-    // Re-adjuntar listeners de controles de cantidad
-    document.querySelectorAll('.qty-minus').forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
-        const target = e.currentTarget as HTMLButtonElement;
-        const id = Number(target.getAttribute('data-id'));
-        const producto = productosActuales.find(p => String(p.id) === String(id));
-        if (producto && Number(producto.cantidad) > 0) {
-          await actualizarCantidad(producto, Number(producto.cantidad) - 1);
-        }
-      });
-    });
-
-    document.querySelectorAll('.qty-plus').forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
-        const target = e.currentTarget as HTMLButtonElement;
-        const id = Number(target.getAttribute('data-id'));
-        const producto = productosActuales.find(p => String(p.id) === String(id));
-        if (producto) {
-          await actualizarCantidad(producto, Number(producto.cantidad) + 1);
-        }
-      });
-    });
-  }
-
-  async function actualizarCantidad(producto: any, nuevaCantidad: number) {
-    try {
-      const response = await fetch('/api/products', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...producto, cantidad: nuevaCantidad }),
-      });
-      if (response.ok) {
-        producto.cantidad = nuevaCantidad;
-        actualizarEstadisticas();
-        renderizarTabla();
-        mostrarMensaje(`✓ Cantidad actualizada: ${nuevaCantidad} uds`, 'success');
-      } else {
-        mostrarMensaje('✗ Error al actualizar la cantidad', 'error');
-      }
-    } catch {
-      mostrarMensaje('✗ Error de conexión', 'error');
-    }
   }
 
   async function cargarInventario() {
-    const tbody = document.getElementById('inventarioBody');
-    if (!tbody) return;
-
     try {
-      const response = await fetch('/api/products');
-      const inventario = await response.json();
-      productosActuales = Array.isArray(inventario) ? inventario : [];
-
-      actualizarEstadisticas();
+      const res = await fetch('/api/products');
+      const data = await res.json();
+      productosActuales = Array.isArray(data) ? data : [];
+      actualizarStats();
       renderizarTabla();
-
-    } catch (error) {
-      console.error('Error cargando productos:', error);
-      tbody.innerHTML = `
-        <tr class="border-b border-slate-100">
-          <td colspan="5" class="px-5 py-8 text-center text-rose-600 font-semibold">
-            Error al cargar productos de la base de datos
-          </td>
-        </tr>
+    } catch {
+      const tbody = document.getElementById('inventarioBody');
+      if (tbody) tbody.innerHTML = `
+        <tr><td colspan="4" class="px-5 py-8 text-center text-rose-500 text-sm font-semibold">Error al cargar los productos</td></tr>
       `;
     }
   }
 
-  async function confirmarEliminar() {
-    if (pendingDeleteId === null) return;
+  searchInput?.addEventListener('input', renderizarTabla);
 
-    try {
-      const response = await fetch('/api/products', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: pendingDeleteId }),
-      });
-
-      if (response.ok) {
-        mostrarMensaje('✓ Producto eliminado correctamente', 'success');
-        cerrarConfirmDelete();
-        await cargarInventario();
-      } else {
-        mostrarMensaje('✗ Error al eliminar el producto', 'error');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      mostrarMensaje('✗ Error al eliminar el producto', 'error');
-    }
-  }
-
-  editForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const payload = {
-      id: Number((document.getElementById('editId') as HTMLInputElement).value),
-      nombre: (document.getElementById('editNombre') as HTMLInputElement).value.trim(),
-      cantidad: Number.parseInt((document.getElementById('editCantidad') as HTMLInputElement).value, 10) || 0,
-      categoria: (document.getElementById('editCategoria') as HTMLInputElement).value.trim(),
-      precio: Number.parseFloat((document.getElementById('editPrecio') as HTMLInputElement).value) || 0,
-      descripcion: (document.getElementById('editDescripcion') as HTMLTextAreaElement).value.trim(),
-    };
-
-    try {
-      const response = await fetch('/api/products', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        mostrarMensaje('✓ Producto actualizado correctamente', 'success');
-        cerrarModalEdicion();
-        await cargarInventario();
-      } else {
-        mostrarMensaje('✗ Error al actualizar el producto', 'error');
-      }
-    } catch (error) {
-      console.error('Error actualizando producto:', error);
-      mostrarMensaje('✗ Error de conexion', 'error');
-    }
-  });
-
-  closeEditModal.addEventListener('click', cerrarModalEdicion);
-  cancelEditBtn.addEventListener('click', cerrarModalEdicion);
-  cancelDeleteBtn.addEventListener('click', cerrarConfirmDelete);
-  confirmDeleteBtn.addEventListener('click', confirmarEliminar);
-  
-  editModal.addEventListener('click', (e) => {
-    if (e.target === editModal) cerrarModalEdicion();
-  });
-
-  deleteConfirmModal.addEventListener('click', (e) => {
-    if (e.target === deleteConfirmModal) cerrarConfirmDelete();
-  });
-
-  searchInput?.addEventListener('input', () => {
+  window.addEventListener('filtrarCategoria', (e: any) => {
+    categoriaActiva = e.detail.categoria;
     renderizarTabla();
   });
 
-  cargarInventario();
   window.addEventListener('inventarioActualizado', cargarInventario);
-</script>
 
-<style>
-  @keyframes modalFadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95) translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-</style>
+  cargarInventario();
+</script>

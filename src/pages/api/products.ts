@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { addCategory } from "@/utils/categoriesStore";
 
 const dataPath = fileURLToPath(new URL("../../data/products.json", import.meta.url));
 
@@ -24,11 +25,6 @@ async function readProducts() {
   }
 }
 
-function normalizeBody(body: any) {
-  if (!body || typeof body !== "object") return {};
-  return body;
-}
-
 export const GET: APIRoute = async () => {
   try {
     await initFile();
@@ -46,50 +42,42 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   try {
     await initFile();
-
     const text = await request.text();
-    console.log("Raw request body:", text);
     const body = text ? JSON.parse(text) : {};
-    const normalizedBody = normalizeBody(body);
     const products = await readProducts();
 
     const newProduct = {
       id: Date.now(),
-      nombre: normalizedBody.nombre || "",
-      cantidad: Number(normalizedBody.cantidad) || 0,
-      categoria: normalizedBody.categoria || "",
-      precio: Number(normalizedBody.precio) || 0,
-      descripcion: normalizedBody.descripcion || "",
+      nombre: (body.nombre || "").trim(),
+      categoria: (body.categoria || "").trim(),
+      precio: Number(body.precio) || 0,
       fechaCreacion: new Date().toISOString(),
     };
 
     products.push(newProduct);
-
     await fs.writeFile(dataPath, JSON.stringify(products, null, 2));
+    if (newProduct.categoria) await addCategory(newProduct.categoria);
 
     return new Response(JSON.stringify(newProduct), {
       status: 201,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("POST error:", error);
-    return new Response(
-      JSON.stringify({ error: String(error) }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: String(error) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 };
 
 export const PUT: APIRoute = async ({ request }) => {
   try {
     await initFile();
-
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
-    const normalizedBody = normalizeBody(body);
     const products = await readProducts();
 
-    const index = products.findIndex((product: any) => String(product.id) === String(normalizedBody.id));
+    const index = products.findIndex((p: any) => String(p.id) === String(body.id));
     if (index === -1) {
       return new Response(JSON.stringify({ error: "Producto no encontrado" }), {
         status: 404,
@@ -97,37 +85,34 @@ export const PUT: APIRoute = async ({ request }) => {
       });
     }
 
-    const updatedProduct = {
+    const updated = {
       ...products[index],
-      nombre: normalizedBody.nombre ?? products[index].nombre,
-      cantidad: Number(normalizedBody.cantidad ?? products[index].cantidad) || 0,
-      categoria: normalizedBody.categoria ?? products[index].categoria,
-      precio: Number(normalizedBody.precio ?? products[index].precio) || 0,
-      descripcion: normalizedBody.descripcion ?? products[index].descripcion,
+      nombre: (body.nombre ?? products[index].nombre).trim(),
+      categoria: (body.categoria ?? products[index].categoria ?? "").trim(),
+      precio: Number(body.precio ?? products[index].precio) || 0,
     };
 
-    products[index] = updatedProduct;
+    products[index] = updated;
     await fs.writeFile(dataPath, JSON.stringify(products, null, 2));
+    if (updated.categoria) await addCategory(updated.categoria);
 
-    return new Response(JSON.stringify(updatedProduct), {
+    return new Response(JSON.stringify(updated), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: String(error) }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: String(error) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 };
 
 export const DELETE: APIRoute = async ({ request }) => {
   try {
     await initFile();
-
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
-    const normalizedBody = normalizeBody(body);
-    const id = Number(normalizedBody.id);
+    const id = Number(body.id);
     let products = await readProducts();
 
     products = products.filter((p: any) => p.id !== id);
@@ -137,9 +122,9 @@ export const DELETE: APIRoute = async ({ request }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: String(error) }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: String(error) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 };
