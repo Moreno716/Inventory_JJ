@@ -1,10 +1,5 @@
 name = "inventory-jj"
 compatibility_date = "2024-09-23"
-main = "./dist/server/entry.mjs"
-
-[assets]
-directory = "./dist/client"
-binding = "ASSETS"
 
 [[kv_namespaces]]
 binding = "INVENTORY_KV"
