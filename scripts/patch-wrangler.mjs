@@ -3,10 +3,17 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const path = './dist/server/wrangler.json';
 const config = JSON.parse(readFileSync(path, 'utf8'));
 
-// Cloudflare Pages reserves the binding name 'ASSETS' — remove it so Pages deploy succeeds.
-// Pages handles static assets automatically via pages_build_output_dir; no binding needed.
-delete config.assets;
-if (config.previews) delete config.previews.assets;
+// Remove pages_build_output_dir: incompatible with `main` in Workers+Assets mode.
+// The adapter v14 targets Cloudflare Workers+Assets, not traditional Pages mode.
+delete config.pages_build_output_dir;
+
+// Add assets.directory so Pages CI knows where to upload static files.
+// Path is relative to dist/server/wrangler.json → dist/client/
+if (config.assets) {
+  config.assets.directory = '../client';
+} else {
+  config.assets = { binding: 'ASSETS', directory: '../client' };
+}
 
 writeFileSync(path, JSON.stringify(config, null, 2));
-console.log('Patched dist/server/wrangler.json: removed reserved ASSETS binding');
+console.log('Patched dist/server/wrangler.json: removed pages_build_output_dir, added assets.directory');

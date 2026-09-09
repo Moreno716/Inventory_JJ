@@ -1,9 +1,6 @@
 name = "inventory-jj"
 compatibility_date = "2024-09-23"
-pages_build_output_dir = "./dist"
 
-# KV namespace binding - reemplaza el id con el de tu namespace real
-# Encuéntralo en: Workers & Pages → KV → tu namespace → copiar el ID
 [[kv_namespaces]]
 binding = "INVENTORY_KV"
 id = "a4641925e7884923b41828e41d428f57"
