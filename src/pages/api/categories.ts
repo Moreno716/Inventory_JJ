@@ -2,9 +2,9 @@ import type { APIRoute } from "astro";
 import { readCategories, addCategory, removeCategory } from "@/utils/categoriesStore";
 import { getKV } from "@/utils/kvStore";
 
-export const GET: APIRoute = async ({ locals }) => {
+export const GET: APIRoute = async () => {
   try {
-    const KV = getKV(locals);
+    const KV = getKV();
     const cats = await readCategories(KV);
     return new Response(JSON.stringify(cats), {
       headers: { "Content-Type": "application/json" },
@@ -17,9 +17,9 @@ export const GET: APIRoute = async ({ locals }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
   try {
-    const KV = getKV(locals);
+    const KV = getKV();
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
     await addCategory(KV, body.nombre || "");
@@ -36,9 +36,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ request, locals }) => {
+export const DELETE: APIRoute = async ({ request }) => {
   try {
-    const KV = getKV(locals);
+    const KV = getKV();
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
     await removeCategory(KV, body.nombre || "");

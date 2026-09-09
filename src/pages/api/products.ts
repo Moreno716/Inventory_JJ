@@ -13,9 +13,9 @@ async function readProducts(KV: KVNamespace): Promise<any[]> {
   }
 }
 
-export const GET: APIRoute = async ({ locals }) => {
+export const GET: APIRoute = async () => {
   try {
-    const KV = getKV(locals);
+    const KV = getKV();
     const products = await readProducts(KV);
     return new Response(JSON.stringify(products), {
       headers: { "Content-Type": "application/json" },
@@ -27,9 +27,9 @@ export const GET: APIRoute = async ({ locals }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
   try {
-    const KV = getKV(locals);
+    const KV = getKV();
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
     const products = await readProducts(KV);
@@ -58,9 +58,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 };
 
-export const PUT: APIRoute = async ({ request, locals }) => {
+export const PUT: APIRoute = async ({ request }) => {
   try {
-    const KV = getKV(locals);
+    const KV = getKV();
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
     const products = await readProducts(KV);
@@ -95,9 +95,9 @@ export const PUT: APIRoute = async ({ request, locals }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ request, locals }) => {
+export const DELETE: APIRoute = async ({ request }) => {
   try {
-    const KV = getKV(locals);
+    const KV = getKV();
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
     const id = Number(body.id);
