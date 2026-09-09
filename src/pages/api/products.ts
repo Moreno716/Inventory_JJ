@@ -1,35 +1,23 @@
 import type { APIRoute } from "astro";
-import fs from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { getKV } from "@/utils/kvStore";
 import { addCategory } from "@/utils/categoriesStore";
 
-const dataPath = fileURLToPath(new URL("../../data/products.json", import.meta.url));
-
-async function initFile() {
+async function readProducts(KV: KVNamespace): Promise<any[]> {
   try {
-    await fs.readFile(dataPath, "utf-8");
-  } catch {
-    await fs.mkdir(path.dirname(dataPath), { recursive: true });
-    await fs.writeFile(dataPath, "[]");
-  }
-}
-
-async function readProducts() {
-  try {
-    const content = await fs.readFile(dataPath, "utf-8");
-    const parsed = JSON.parse(content);
+    const data = await KV.get('products');
+    if (!data) return [];
+    const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ locals }) => {
   try {
-    await initFile();
-    const content = await fs.readFile(dataPath, "utf-8");
-    return new Response(content || "[]", {
+    const KV = getKV(locals);
+    const products = await readProducts(KV);
+    return new Response(JSON.stringify(products), {
       headers: { "Content-Type": "application/json" },
     });
   } catch {
@@ -39,12 +27,12 @@ export const GET: APIRoute = async () => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    await initFile();
+    const KV = getKV(locals);
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
-    const products = await readProducts();
+    const products = await readProducts(KV);
 
     const newProduct = {
       id: Date.now(),
@@ -55,8 +43,8 @@ export const POST: APIRoute = async ({ request }) => {
     };
 
     products.push(newProduct);
-    await fs.writeFile(dataPath, JSON.stringify(products, null, 2));
-    if (newProduct.categoria) await addCategory(newProduct.categoria);
+    await KV.put('products', JSON.stringify(products));
+    if (newProduct.categoria) await addCategory(KV, newProduct.categoria);
 
     return new Response(JSON.stringify(newProduct), {
       status: 201,
@@ -70,12 +58,12 @@ export const POST: APIRoute = async ({ request }) => {
   }
 };
 
-export const PUT: APIRoute = async ({ request }) => {
+export const PUT: APIRoute = async ({ request, locals }) => {
   try {
-    await initFile();
+    const KV = getKV(locals);
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
-    const products = await readProducts();
+    const products = await readProducts(KV);
 
     const index = products.findIndex((p: any) => String(p.id) === String(body.id));
     if (index === -1) {
@@ -93,8 +81,8 @@ export const PUT: APIRoute = async ({ request }) => {
     };
 
     products[index] = updated;
-    await fs.writeFile(dataPath, JSON.stringify(products, null, 2));
-    if (updated.categoria) await addCategory(updated.categoria);
+    await KV.put('products', JSON.stringify(products));
+    if (updated.categoria) await addCategory(KV, updated.categoria);
 
     return new Response(JSON.stringify(updated), {
       headers: { "Content-Type": "application/json" },
@@ -107,16 +95,16 @@ export const PUT: APIRoute = async ({ request }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ request }) => {
+export const DELETE: APIRoute = async ({ request, locals }) => {
   try {
-    await initFile();
+    const KV = getKV(locals);
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
     const id = Number(body.id);
-    let products = await readProducts();
+    let products = await readProducts(KV);
 
     products = products.filter((p: any) => p.id !== id);
-    await fs.writeFile(dataPath, JSON.stringify(products, null, 2));
+    await KV.put('products', JSON.stringify(products));
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json" },

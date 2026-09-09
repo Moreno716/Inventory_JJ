@@ -1,35 +1,29 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const catsPath = fileURLToPath(new URL("../data/categories.json", import.meta.url));
-
-export async function readCategories(): Promise<string[]> {
+export async function readCategories(KV: KVNamespace): Promise<string[]> {
   try {
-    const content = await fs.readFile(catsPath, "utf-8");
-    const parsed = JSON.parse(content);
+    const data = await KV.get('categories');
+    if (!data) return [];
+    const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
 
-export async function saveCategories(cats: string[]): Promise<void> {
-  await fs.mkdir(path.dirname(catsPath), { recursive: true });
-  await fs.writeFile(catsPath, JSON.stringify(cats, null, 2));
+async function saveCategories(KV: KVNamespace, cats: string[]): Promise<void> {
+  await KV.put('categories', JSON.stringify(cats));
 }
 
-export async function addCategory(name: string): Promise<void> {
+export async function addCategory(KV: KVNamespace, name: string): Promise<void> {
   const trimmed = name.trim();
   if (!trimmed) return;
-  const cats = await readCategories();
+  const cats = await readCategories(KV);
   if (cats.some(c => c.toLowerCase() === trimmed.toLowerCase())) return;
   cats.push(trimmed);
-  cats.sort((a, b) => a.localeCompare(b, "es"));
-  await saveCategories(cats);
+  cats.sort((a, b) => a.localeCompare(b, 'es'));
+  await saveCategories(KV, cats);
 }
 
-export async function removeCategory(name: string): Promise<void> {
-  const cats = await readCategories();
-  await saveCategories(cats.filter(c => c !== name));
+export async function removeCategory(KV: KVNamespace, name: string): Promise<void> {
+  const cats = await readCategories(KV);
+  await saveCategories(KV, cats.filter(c => c !== name));
 }

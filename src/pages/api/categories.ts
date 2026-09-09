@@ -1,23 +1,22 @@
 import type { APIRoute } from "astro";
-import {
-  readCategories,
-  addCategory,
-  removeCategory,
-} from "@/utils/categoriesStore";
+import { readCategories, addCategory, removeCategory } from "@/utils/categoriesStore";
+import { getKV } from "@/utils/kvStore";
 
-export const GET: APIRoute = async () => {
-  const cats = await readCategories();
+export const GET: APIRoute = async ({ locals }) => {
+  const KV = getKV(locals);
+  const cats = await readCategories(KV);
   return new Response(JSON.stringify(cats), {
     headers: { "Content-Type": "application/json" },
   });
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    const KV = getKV(locals);
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
-    await addCategory(body.nombre || "");
-    const cats = await readCategories();
+    await addCategory(KV, body.nombre || "");
+    const cats = await readCategories(KV);
     return new Response(JSON.stringify(cats), {
       status: 201,
       headers: { "Content-Type": "application/json" },
@@ -30,12 +29,13 @@ export const POST: APIRoute = async ({ request }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ request }) => {
+export const DELETE: APIRoute = async ({ request, locals }) => {
   try {
+    const KV = getKV(locals);
     const text = await request.text();
     const body = text ? JSON.parse(text) : {};
-    await removeCategory(body.nombre || "");
-    const cats = await readCategories();
+    await removeCategory(KV, body.nombre || "");
+    const cats = await readCategories(KV);
     return new Response(JSON.stringify(cats), {
       headers: { "Content-Type": "application/json" },
     });
