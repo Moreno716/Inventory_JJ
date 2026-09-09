@@ -5,11 +5,7 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   site: "https://inventory-jj.pages.dev",
   output: "server",
-  adapter: cloudflare({
-    platformProxy: {
-      enabled: true,
-    },
-  }),
+  adapter: cloudflare(),
   vite: {
     resolve: {
       alias: {
