@@ -6,12 +6,12 @@ interface KVNamespace {
   delete(key: string): Promise<void>;
 }
 
+interface Env {
+  INVENTORY_KV: KVNamespace;
+}
+
+type Runtime = import("@astrojs/cloudflare").Runtime<Env>;
+
 declare namespace App {
-  interface Locals {
-    runtime?: {
-      env?: {
-        INVENTORY_KV?: KVNamespace;
-      };
-    };
-  }
+  interface Locals extends Runtime {}
 }
