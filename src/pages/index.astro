@@ -1,3 +1,62 @@
 ---
-return Astro.redirect('/inventory/');
+import "@/styles/inventory.css";
+import InventarioForm from "@/components/InventarioForm.astro";
+import InventarioTable from "@/components/InventarioTable.astro";
+import InventoryModals from "@/components/InventoryModals.astro";
 ---
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tienda JJ — Inventario</title>
+  </head>
+  <body class="min-h-screen bg-[#f8fafc] text-slate-800 antialiased">
+
+    <!-- Header sticky -->
+    <header class="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <div class="max-w-3xl mx-auto flex items-center justify-between gap-3 px-4 py-3">
+
+        <!-- Marca -->
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#001A6E] to-[#0b2f95] text-white shadow-md">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <h1 class="font-extrabold text-slate-900 text-base leading-tight">Tienda JJ</h1>
+            <p class="text-[10px] text-slate-400 leading-none mt-0.5">
+              <span id="headerStatProducts">-</span> productos
+              <span class="mx-1 text-slate-300">·</span>
+              <span id="headerStatCats">-</span> categorías
+            </p>
+          </div>
+        </div>
+
+        <!-- Botón nuevo producto -->
+        <button
+          id="openAddModal"
+          type="button"
+          class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#001A6E] to-[#0b2f95] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-900/15 transition hover:-translate-y-0.5 active:scale-95"
+        >
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+          </svg>
+          Nuevo
+        </button>
+
+      </div>
+    </header>
+
+    <!-- Barra de búsqueda y filtros de categoría -->
+    <InventarioForm />
+
+    <!-- Lista de productos -->
+    <main class="max-w-3xl mx-auto px-4 py-4">
+      <InventarioTable />
+    </main>
+
+    <InventoryModals />
+
+  </body>
+</html>
