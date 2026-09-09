@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   site: "https://inventory-jj.pages.dev",
   output: "server",
-  adapter: cloudflare(),
+  session: false,
+  adapter: cloudflare({
+    imageService: "passthrough",
+  }),
   vite: {
     resolve: {
       alias: {
