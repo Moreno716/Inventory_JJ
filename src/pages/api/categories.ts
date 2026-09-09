@@ -3,11 +3,18 @@ import { readCategories, addCategory, removeCategory } from "@/utils/categoriesS
 import { getKV } from "@/utils/kvStore";
 
 export const GET: APIRoute = async ({ locals }) => {
-  const KV = getKV(locals);
-  const cats = await readCategories(KV);
-  return new Response(JSON.stringify(cats), {
-    headers: { "Content-Type": "application/json" },
-  });
+  try {
+    const KV = getKV(locals);
+    const cats = await readCategories(KV);
+    return new Response(JSON.stringify(cats), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: String(error) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 };
 
 export const POST: APIRoute = async ({ request, locals }) => {
